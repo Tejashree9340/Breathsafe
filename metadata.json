@@ -1,0 +1,7 @@
+{
+  "name": "BreatheSafe AI — Environmental Intelligence Platform",
+  "description": "High-fidelity environmental intelligence platform tracking real-time global air quality, pollutant levels, exposure guidance, and atmospheric sensors.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

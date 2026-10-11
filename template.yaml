@@ -1,0 +1,154 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  BreatheSafe AI — Real AWS Serverless Environmental Intelligence Architecture.
+  Integrates Amazon API Gateway (HTTP API v2), AWS Lambda (Python 3.11 with Mangum),
+  Amazon S3 (Encrypted Archive Storage with Glacier Lifecycle), and Amazon CloudWatch.
+  Built for Environmental Hacks 2026 (Bharat Builds Tour).
+
+Parameters:
+  EnvironmentStage:
+    Type: String
+    Default: prod
+    AllowedValues:
+      - prod
+      - staging
+      - dev
+    Description: Deployment stage for BreatheSafe AI
+
+  OpenAqApiKey:
+    Type: String
+    NoEcho: true
+    Default: ''
+    Description: (Optional) OpenAQ API v3 Key. If omitted, uses verified reference registry.
+
+Globals:
+  Function:
+    Timeout: 15
+    MemorySize: 512
+    Runtime: python3.11
+    Tracing: Active
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        ENVIRONMENT: !Ref EnvironmentStage
+        S3_BUCKET_NAME: !Ref EnvironmentalArchiveBucket
+        OPENAQ_API_KEY: !Ref OpenAqApiKey
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+
+Resources:
+  ##############################################################################
+  # 1. Amazon API Gateway HTTP API (v2)
+  ##############################################################################
+  BreatheSafeHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: !Ref EnvironmentStage
+      CorsConfiguration:
+        AllowOrigins:
+          - '*'
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+          - X-Requested-With
+          - Accept
+        AllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+        MaxAge: 600
+
+  ##############################################################################
+  # 2. AWS Lambda Serverless REST Function (FastAPI + Mangum)
+  ##############################################################################
+  BreatheSafeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "BreatheSafe-Telemetry-API-${EnvironmentStage}"
+      CodeUri: backend/
+      Handler: main.handler
+      Description: Ingests OpenAQ v3 telemetry, computes EPA AQI, and archives snapshots to S3.
+      Policies:
+        # Least-privilege IAM policy for S3 bucket operations
+        - S3CrudPolicy:
+            BucketName: !Ref EnvironmentalArchiveBucket
+        # CloudWatch metrics policy
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        ProxyApiRoot:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref BreatheSafeHttpApi
+            Path: /
+            Method: ANY
+        ProxyApiGreedy:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref BreatheSafeHttpApi
+            Path: /{proxy+}
+            Method: ANY
+
+  ##############################################################################
+  # 3. Amazon S3 Archive Storage Bucket
+  ##############################################################################
+  EnvironmentalArchiveBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "breathesafe-atmospheric-archives-${AWS::AccountId}-${EnvironmentStage}"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: TransitionSnapshotsToGlacier
+            Status: Enabled
+            Transitions:
+              - TransitionInDays: 90
+                StorageClass: GLACIER
+            ExpirationInDays: 365
+
+  ##############################################################################
+  # 4. Amazon CloudWatch Alarm for Lambda Error Monitoring
+  ##############################################################################
+  LambdaErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "BreatheSafe-LambdaErrors-${EnvironmentStage}"
+      AlarmDescription: Triggers when BreatheSafe API Lambda encounters unhandled exceptions or 5xx errors.
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref BreatheSafeFunction
+
+Outputs:
+  ApiGatewayEndpointUrl:
+    Description: Base URL for BreatheSafe REST API Gateway. Configure in frontend as VITE_API_BASE_URL.
+    Value: !Sub "https://${BreatheSafeHttpApi}.execute-api.${AWS::Region}.amazonaws.com/${EnvironmentStage}"
+    Export:
+      Name: !Sub "BreatheSafe-ApiUrl-${EnvironmentStage}"
+
+  LambdaFunctionArn:
+    Description: ARN of the deployed BreatheSafe FastAPI Lambda Function
+    Value: !GetAtt BreatheSafeFunction.Arn
+
+  S3ArchiveBucketName:
+    Description: Dedicated S3 Bucket storing immutable environmental telemetry snapshots
+    Value: !Ref EnvironmentalArchiveBucket

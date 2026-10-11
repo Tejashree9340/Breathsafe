@@ -1,0 +1,140 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #111318;
+    color: #F2F5F8;
+    overflow-x: hidden;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #111318;
+}
+::-webkit-scrollbar-thumb {
+  background: #282F3B;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #38D9FF;
+}
+
+/* Leaflet dark theme custom overrides */
+.leaflet-container {
+  background: #111318 !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+.leaflet-popup-content-wrapper {
+  background: #1B1F27 !important;
+  color: #F2F5F8 !important;
+  border: 1px solid rgba(56, 217, 255, 0.2) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6) !important;
+}
+.leaflet-popup-tip {
+  background: #1B1F27 !important;
+}
+.leaflet-control-zoom {
+  border: 1px solid #282F3B !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+}
+.leaflet-control-zoom a {
+  background-color: rgba(27, 31, 39, 0.95) !important;
+  color: #F2F5F8 !important;
+  border-color: #282F3B !important;
+}
+.leaflet-control-zoom a:hover {
+  background-color: #282F3B !important;
+  color: #38D9FF !important;
+}
+
+/* OpenStreetMap attribution styling */
+.leaflet-control-attribution {
+  background: rgba(17, 19, 24, 0.9) !important;
+  color: #9CA7B5 !important;
+  font-size: 10.5px !important;
+  padding: 3px 8px !important;
+  border-top-left-radius: 6px !important;
+  border-top: 1px solid #282F3B !important;
+  border-left: 1px solid #282F3B !important;
+  backdrop-filter: blur(4px) !important;
+}
+.leaflet-control-attribution a {
+  color: #38D9FF !important;
+  text-decoration: underline !important;
+}
+
+/* Optional night tone filter for OpenStreetMap tiles */
+.breathesafe-night-tiles .leaflet-tile-pane {
+  filter: brightness(0.7) invert(1) contrast(1.15) hue-rotate(200deg) saturate(0.35);
+}
+
+/* Custom Atmospheric Cluster & Marker Styling */
+.breathesafe-cluster-icon {
+  background: transparent;
+  border: none;
+}
+.breathesafe-cluster-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: rgba(17, 19, 24, 0.88);
+  backdrop-filter: blur(8px);
+  border: 1.5px solid #38D9FF;
+  box-shadow: 0 0 16px rgba(56, 217, 255, 0.35);
+  color: #F2F5F8;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s;
+}
+.breathesafe-cluster-badge:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 24px rgba(56, 217, 255, 0.65);
+}
+
+.breathesafe-station-marker {
+  background: transparent;
+  border: none;
+}
+.breathesafe-station-dot {
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+.breathesafe-station-dot:hover {
+  transform: scale(1.3);
+  z-index: 1000;
+}
+
+/* Atmospheric Marker Tooltips */
+.breathesafe-leaflet-tooltip {
+  background: rgba(27, 31, 39, 0.95) !important;
+  color: #F2F5F8 !important;
+  border: 1px solid #282F3B !important;
+  border-radius: 8px !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  padding: 6px 10px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(8px) !important;
+}
+.breathesafe-leaflet-tooltip::before {
+  border-top-color: #282F3B !important;
+}
+
