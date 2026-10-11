@@ -14,7 +14,7 @@ import {
   Wind
 } from 'lucide-react';
 
-const HARDWARE_STATION_IMG = '/src/assets/images/sensor_station_hardware_1791723322752.jpg';
+const HARDWARE_STATION_IMG = '/sensor_station_hardware.jpg';
 
 const FAQS = [
   {

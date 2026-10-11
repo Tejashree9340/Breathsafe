@@ -4,8 +4,8 @@ import { MessageSquare, X, Volume2, VolumeX, Sparkles, AlertTriangle, ShieldChec
 import { MonitoringStation } from '../types/environmental';
 
 // Generated high-fidelity asset paths
-const MASCOT_EXPLORER_IMG = '/src/assets/images/mascot_breathe_panda_1791723287413.jpg';
-const MASCOT_ALERT_IMG = '/src/assets/images/mascot_panda_alert_1791723311983.jpg';
+const MASCOT_EXPLORER_IMG = '/mascot_breathe_panda.jpg';
+const MASCOT_ALERT_IMG = '/mascot_panda_alert.jpg';
 
 interface PandaMascotProps {
   currentStation?: MonitoringStation | null;
