@@ -3,8 +3,8 @@ import * as THREE from 'three';
 import { MonitoringStation } from '../types/environmental';
 import { RotateCw, Pause, Play, ZoomIn, ZoomOut, Compass } from 'lucide-react';
 
-const SATELLITE_EARTH_MAP = '/src/assets/images/satellite_earth_map_1791728842464.jpg';
-const EARTH_CLOUDS_MAP = '/src/assets/images/earth_clouds_map_1791728873049.jpg';
+const SATELLITE_EARTH_MAP = '/satellite_earth_map.jpg';
+const EARTH_CLOUDS_MAP = '/earth_clouds_map.jpg';
 
 interface EarthGlobe3DProps {
   stations: MonitoringStation[];
