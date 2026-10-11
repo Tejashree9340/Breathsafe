@@ -17,3 +17,5 @@ __pycache__/
 # AWS SAM & CloudFormation
 .aws-sam/
 samconfig.toml
+
+.vercel
